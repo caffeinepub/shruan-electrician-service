@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Font Declarations ─────────────────────────────────────────── */
+@font-face {
+  font-family: "Cabinet Grotesk";
+  src: url("/assets/fonts/CabinetGrotesk-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/assets/fonts/BricolageGrotesque-Variable.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("/assets/fonts/GeneralSans-Variable.woff2") format("woff2");
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Design Tokens ─────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --radius: 0.75rem;
+
+    /* Blue-dominant palette – deep navy background, electric blue primary */
+    --background: 0.97 0.005 240;
+    --foreground: 0.15 0.02 255;
+
+    --card: 1 0 0;
+    --card-foreground: 0.15 0.02 255;
+
+    --popover: 1 0 0;
+    --popover-foreground: 0.15 0.02 255;
+
+    /* Electric blue primary */
+    --primary: 0.5 0.22 260;
+    --primary-foreground: 0.98 0 0;
+
+    /* Soft secondary */
+    --secondary: 0.93 0.03 240;
+    --secondary-foreground: 0.3 0.08 255;
+
+    --muted: 0.93 0.03 240;
+    --muted-foreground: 0.48 0.04 255;
+
+    /* Accent: warm amber for contrast */
+    --accent: 0.84 0.16 80;
+    --accent-foreground: 0.15 0.02 255;
+
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.985 0 0;
+
+    --border: 0.88 0.02 240;
+    --input: 0.88 0.02 240;
+    --ring: 0.5 0.22 260;
+
+    --chart-1: 0.5 0.22 260;
+    --chart-2: 0.65 0.16 200;
+    --chart-3: 0.84 0.16 80;
+    --chart-4: 0.65 0.18 150;
+    --chart-5: 0.7 0.2 30;
+
+    --sidebar: 0.2 0.06 255;
+    --sidebar-foreground: 0.9 0.02 240;
+    --sidebar-primary: 0.6 0.22 260;
+    --sidebar-primary-foreground: 0.98 0 0;
+    --sidebar-accent: 0.28 0.07 255;
+    --sidebar-accent-foreground: 0.9 0.02 240;
+    --sidebar-border: 0.28 0.07 255;
+    --sidebar-ring: 0.5 0.22 260;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "General Sans", sans-serif;
+  }
+
+  h1, h2, h3 {
+    font-family: "Bricolage Grotesque", sans-serif;
+  }
+
+  .font-display {
+    font-family: "Cabinet Grotesk", sans-serif;
+  }
+}
+
+/* ─── Custom utilities ──────────────────────────────────────────── */
+@layer utilities {
+  .hero-gradient {
+    background: linear-gradient(
+      135deg,
+      oklch(0.18 0.08 260) 0%,
+      oklch(0.25 0.1 250) 40%,
+      oklch(0.3 0.12 240) 100%
+    );
+  }
+
+  .electric-glow {
+    box-shadow:
+      0 0 20px oklch(0.5 0.22 260 / 0.3),
+      0 4px 24px oklch(0.2 0.06 255 / 0.4);
+  }
+
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 8px 32px oklch(0.5 0.22 260 / 0.2),
+      0 2px 8px oklch(0.2 0.06 255 / 0.15);
+  }
+
+  .whatsapp-btn {
+    background-color: #25d366;
+    box-shadow: 0 4px 16px rgba(37, 211, 102, 0.5);
+  }
+  .whatsapp-btn:hover {
+    background-color: #20bd5a;
+    box-shadow: 0 6px 24px rgba(37, 211, 102, 0.65);
+    transform: scale(1.05);
+  }
+}
