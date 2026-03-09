@@ -3,8 +3,6 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "@tanstack/react-router";
 import {
   AlertCircle,
-  CheckCircle2,
-  ChevronDown,
   ExternalLink,
   Key,
   Loader2,
@@ -22,10 +20,9 @@ export default function AdminLoginPage() {
   const { login, clear, isLoggingIn, identity, isInitializing } =
     useInternetIdentity();
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
-  const [showTokenInput, setShowTokenInput] = useState(false);
   const [tokenValue, setTokenValue] = useState("");
 
-  // Redirect as soon as identity + admin status is confirmed — no need to wait for fresh login
+  // Redirect as soon as identity + admin status is confirmed
   useEffect(() => {
     if (identity && isAdmin === true && !adminLoading) {
       void router.navigate({ to: "/admin/dashboard" });
@@ -39,17 +36,13 @@ export default function AdminLoginPage() {
   const handleSaveToken = () => {
     if (tokenValue.trim()) {
       storeSessionParameter("caffeineAdminToken", tokenValue.trim());
-      // Reload page so actor is recreated with new token
       window.location.reload();
     }
   };
 
   const isLoggedIn = !!identity;
-  // Show access denied only when we have a definitive false from backend
   const showAccessDenied = isLoggedIn && !adminLoading && isAdmin === false;
-  // Show loading when: logging in, initializing, OR logged in but still waiting for admin check
   const loading = isLoggingIn || isInitializing || (isLoggedIn && adminLoading);
-  // Show the loading state inside the card (after login, while checking admin role)
   const showAdminCheckLoading = isLoggedIn && adminLoading;
 
   return (
@@ -88,7 +81,6 @@ export default function AdminLoginPage() {
 
             <AnimatePresence mode="wait">
               {showAdminCheckLoading ? (
-                /* Loading state while checking admin role after login */
                 <motion.div
                   key="admin-check"
                   data-ocid="admin.loading_state"
@@ -100,15 +92,14 @@ export default function AdminLoginPage() {
                   <Loader2 className="h-10 w-10 animate-spin text-primary" />
                   <div className="text-center">
                     <p className="text-sm font-semibold text-white">
-                      Admin role check ho raha hai...
+                      Verify ho raha hai...
                     </p>
                     <p className="text-xs text-white/50 mt-1">
-                      Thoda wait karein, aapka role verify ho raha hai
+                      Thoda wait karein
                     </p>
                   </div>
                 </motion.div>
               ) : showAccessDenied ? (
-                /* Access Denied state — logged in but not admin */
                 <motion.div
                   key="access-denied"
                   data-ocid="admin.error_state"
@@ -122,122 +113,85 @@ export default function AdminLoginPage() {
                     <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                     <div>
                       <p className="font-bold text-destructive text-sm">
-                        Access Denied — Admin Token Chahiye
+                        Access Denied
                       </p>
                       <p className="text-xs text-white/70 mt-1 leading-relaxed">
-                        Admin banne ke liye aapko{" "}
-                        <strong className="text-white">Admin Token</strong>{" "}
-                        chahiye. Neeche diye option se token enter karein.
+                        Admin access ke liye{" "}
+                        <strong className="text-white">caffeine.ai</strong>{" "}
+                        dashboard se app open karein, ya neeche admin token
+                        paste karein.
                       </p>
                     </div>
                   </div>
 
-                  {/* Token input option */}
-                  <div className="rounded-lg bg-white/5 border border-white/10 p-4 space-y-3">
-                    <button
-                      type="button"
-                      data-ocid="admin.toggle"
-                      onClick={() => setShowTokenInput(!showTokenInput)}
-                      className="w-full flex items-center justify-between text-xs font-bold text-white hover:text-primary transition-colors"
+                  {/* Step 1: Open from Caffeine Dashboard */}
+                  <div className="rounded-lg bg-primary/10 border border-primary/20 p-4 space-y-2">
+                    <p className="text-xs font-bold text-white">
+                      Sab se aasan tarika:
+                    </p>
+                    <ol className="space-y-2">
+                      {[
+                        { step: 1, text: "caffeine.ai dashboard pe jaiye" },
+                        {
+                          step: 2,
+                          text: "Shruan Electrician project select karein",
+                        },
+                        { step: 3, text: '"Open App" button dabayein' },
+                        {
+                          step: 4,
+                          text: "Woh link aapko automatically admin page pe le jaayega",
+                        },
+                      ].map(({ step, text }) => (
+                        <li key={step} className="flex items-start gap-2">
+                          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/30 text-[9px] font-bold text-primary">
+                            {step}
+                          </span>
+                          <span className="text-xs text-white/70 leading-relaxed pt-0.5">
+                            {text}
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                    <a
+                      data-ocid="admin.link"
+                      href="https://caffeine.ai"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors mt-1"
                     >
-                      <span className="flex items-center gap-1.5">
-                        <Key className="h-3.5 w-3.5 text-primary" />
-                        Admin Token Enter Karein
-                      </span>
-                      <ChevronDown
-                        className={`h-3.5 w-3.5 transition-transform ${showTokenInput ? "rotate-180" : ""}`}
-                      />
-                    </button>
+                      <ExternalLink className="h-3 w-3" />
+                      caffeine.ai Dashboard kholen
+                    </a>
+                  </div>
 
-                    <AnimatePresence>
-                      {showTokenInput && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden space-y-2"
-                        >
-                          <p className="text-xs text-white/60 leading-relaxed">
-                            Caffeine dashboard (caffeine.ai) pe jaiye → apna
-                            project kholen →{" "}
-                            <strong className="text-white">Settings</strong>{" "}
-                            mein{" "}
-                            <strong className="text-white">Admin Token</strong>{" "}
-                            copy karein aur yahan paste karein.
-                          </p>
-                          <div className="flex gap-2">
-                            <Input
-                              data-ocid="admin.input"
-                              type="password"
-                              placeholder="Admin token yahan paste karein..."
-                              value={tokenValue}
-                              onChange={(e) => setTokenValue(e.target.value)}
-                              onKeyDown={(e) =>
-                                e.key === "Enter" && handleSaveToken()
-                              }
-                              className="flex-1 h-9 text-xs bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-primary"
-                            />
-                            <Button
-                              data-ocid="admin.submit_button"
-                              size="sm"
-                              onClick={handleSaveToken}
-                              disabled={!tokenValue.trim()}
-                              className="h-9 bg-primary text-primary-foreground hover:opacity-90 px-3"
-                            >
-                              Save
-                            </Button>
-                          </div>
-                          <div className="rounded-lg bg-white/5 border border-white/10 p-3 space-y-2">
-                            <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                              <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-                              Token kahan milega:
-                            </p>
-                            <ol className="space-y-1.5">
-                              {[
-                                {
-                                  step: "1",
-                                  text: "caffeine.ai dashboard pe jaiye",
-                                },
-                                {
-                                  step: "2",
-                                  text: "Shruan Electrician project select karein",
-                                },
-                                {
-                                  step: "3",
-                                  text: '"Open App" button dabayein — woh link mein token hoga',
-                                },
-                                {
-                                  step: "4",
-                                  text: "URL se caffeineAdminToken=XXXX wala part copy karein",
-                                },
-                              ].map(({ step, text }) => (
-                                <li
-                                  key={step}
-                                  className="flex items-start gap-2"
-                                >
-                                  <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[9px] font-bold text-primary">
-                                    {step}
-                                  </span>
-                                  <span className="text-xs text-white/60 leading-relaxed pt-0.5">
-                                    {text}
-                                  </span>
-                                </li>
-                              ))}
-                            </ol>
-                            <a
-                              data-ocid="admin.link"
-                              href="https://caffeine.ai"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors mt-1"
-                            >
-                              <ExternalLink className="h-3 w-3" />
-                              caffeine.ai Dashboard kholen →
-                            </a>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                  {/* Step 2: Token input */}
+                  <div className="rounded-lg bg-white/5 border border-white/10 p-4 space-y-2">
+                    <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <Key className="h-3.5 w-3.5 text-primary" />
+                      Ya Admin Token paste karein:
+                    </p>
+                    <div className="flex gap-2">
+                      <Input
+                        data-ocid="admin.input"
+                        type="password"
+                        placeholder="Token yahan paste karein..."
+                        value={tokenValue}
+                        onChange={(e) => setTokenValue(e.target.value)}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" && handleSaveToken()
+                        }
+                        className="flex-1 h-9 text-xs bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-primary"
+                      />
+                      <Button
+                        data-ocid="admin.submit_button"
+                        size="sm"
+                        onClick={handleSaveToken}
+                        disabled={!tokenValue.trim()}
+                        className="h-9 bg-primary text-primary-foreground hover:opacity-90 px-3"
+                      >
+                        Submit
+                      </Button>
+                    </div>
                   </div>
 
                   <Button
@@ -246,11 +200,10 @@ export default function AdminLoginPage() {
                     onClick={clear}
                     className="w-full border-white/20 bg-white/5 text-white hover:bg-white/15"
                   >
-                    Sign Out aur dobara try karein
+                    Sign Out karein
                   </Button>
                 </motion.div>
               ) : (
-                /* Default login state */
                 <motion.div
                   key="login"
                   initial={{ opacity: 0 }}
@@ -259,8 +212,8 @@ export default function AdminLoginPage() {
                   className="space-y-4"
                 >
                   <p className="text-sm text-white/70">
-                    Sirf authorized Shruan admins hi yahan login kar sakte hain.
-                    Internet Identity se apni identity verify karein.
+                    Admin panel mein jaane ke liye Internet Identity se login
+                    karein.
                   </p>
                   <Button
                     data-ocid="admin.primary_button"
@@ -272,7 +225,7 @@ export default function AdminLoginPage() {
                       <span className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
                         {isInitializing
-                          ? "Shuruaat ho rahi hai..."
+                          ? "Load ho raha hai..."
                           : "Verify ho raha hai..."}
                       </span>
                     ) : (
@@ -283,7 +236,7 @@ export default function AdminLoginPage() {
                     )}
                   </Button>
                   <p className="text-center text-xs text-white/40">
-                    Sirf authorized personnel ke liye. Restricted access.
+                    Sirf Shruan admin ke liye
                   </p>
                 </motion.div>
               )}
