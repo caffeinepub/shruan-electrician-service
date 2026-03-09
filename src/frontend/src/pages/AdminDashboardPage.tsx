@@ -37,20 +37,18 @@ import {
   Trash2,
   Users,
   Wrench,
-  XCircle,
   Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { Booking } from "../backend.d";
-import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useDeleteBooking,
   useGetAllBookings,
-  useIsCallerAdmin,
   useUpdateBookingStatus,
 } from "../hooks/useQueries";
+import { clearAdminSession, isAdminLoggedIn } from "./AdminLoginPage";
 
 const STATUS_COLORS: Record<string, string> = {
   Pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -61,8 +59,6 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const { clear, identity, isInitializing } = useInternetIdentity();
-  const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
   const {
     data: bookings = [],
     isLoading: bookingsLoading,
@@ -73,21 +69,15 @@ export default function AdminDashboardPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<Booking | null>(null);
 
-  // Auth guard — redirect if not logged in or not admin
+  // Auth guard — redirect if not logged in as admin
   useEffect(() => {
-    if (!isInitializing && !identity) {
+    if (!isAdminLoggedIn()) {
       void router.navigate({ to: "/admin" });
     }
-  }, [isInitializing, identity, router]);
-
-  useEffect(() => {
-    if (!adminLoading && isAdmin === false) {
-      void router.navigate({ to: "/admin" });
-    }
-  }, [adminLoading, isAdmin, router]);
+  }, [router]);
 
   const handleLogout = () => {
-    clear();
+    clearAdminSession();
     void router.navigate({ to: "/admin" });
   };
 
@@ -133,7 +123,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  if (isInitializing || adminLoading) {
+  if (bookingsLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center hero-gradient">
         <div className="flex items-center gap-3 text-white">
