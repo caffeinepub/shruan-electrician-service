@@ -5,10 +5,12 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  redirect,
 } from "@tanstack/react-router";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import LandingPage from "./pages/LandingPage";
+import { getSecretParameter } from "./utils/urlParams";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -22,6 +24,13 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
+  beforeLoad: () => {
+    // If admin token is present in URL/session, redirect to admin page
+    const adminToken = getSecretParameter("caffeineAdminToken");
+    if (adminToken) {
+      throw redirect({ to: "/admin" });
+    }
+  },
   component: LandingPage,
 });
 
